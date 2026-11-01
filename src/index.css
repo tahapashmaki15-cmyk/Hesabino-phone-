@@ -9,7 +9,8 @@
   --color-brand-deep: #e9740f;
   --color-muted: #a5afc2;
 
-  --font-sans: 'Vazirmatn', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Estedad is the single typeface for the whole product (weights 400–900). */
+  --font-sans: 'Estedad', 'Vazirmatn', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   --radius-4xl: 1.75rem;
   --radius-5xl: 2.25rem;
@@ -39,12 +40,39 @@
     color: #fff;
   }
 
+  /* NETYAR type scale: display 800/700, sub-headings 600, body 400/500. */
   h1,
-  h2,
-  h3,
-  h4 {
+  h2 {
+    font-weight: 800;
     letter-spacing: -0.02em;
     text-wrap: balance;
+  }
+
+  h3,
+  h4 {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  body {
+    font-weight: 400;
+  }
+
+  strong,
+  b {
+    font-weight: 600;
+  }
+
+  label {
+    font-weight: 500;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font-family: inherit;
   }
 
   :focus-visible {

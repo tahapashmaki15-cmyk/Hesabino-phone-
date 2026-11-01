@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { ArrowLeft, Check, PlayCircle, Sparkles } from 'lucide-react'
 import DashboardPreview from './dashboard/DashboardPreview.jsx'
 
@@ -42,13 +43,13 @@ export default function Hero() {
             className="animate-rise mt-9 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row"
             style={{ animationDelay: '180ms' }}
           >
-            <a
-              href="#pricing"
+            <Link
+              to="/register"
               className="btn-brand group inline-flex w-full items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-bold transition-all duration-300 sm:w-auto"
             >
               شروع رایگان
               <ArrowLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
-            </a>
+            </Link>
             <a
               href="#features"
               className="glass group inline-flex w-full items-center justify-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-white transition-all duration-300 hover:border-white/20 hover:bg-white/[0.08] sm:w-auto"

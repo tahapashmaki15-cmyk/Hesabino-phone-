@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { ArrowLeft, Check, Sparkles } from 'lucide-react'
 import SectionHeading from './SectionHeading.jsx'
 
@@ -7,6 +8,7 @@ const plans = [
     tagline: 'برای شروع و کافی‌نت‌های کوچک',
     features: ['مدیریت یک کافی‌نت', 'حسابداری پایه و گزارش ماهانه', 'دسترسی به نرخ‌نامه شهری', 'پشتیبانی ایمیلی'],
     cta: 'شروع با پلن پایه',
+    href: '/register',
   },
   {
     name: 'حرفه‌ای',
@@ -19,6 +21,7 @@ const plans = [
       'پشتیبانی اولویت‌دار',
     ],
     cta: 'شروع رایگان',
+    href: '/register',
     highlighted: true,
     badge: 'پیشنهاد نت‌یار',
   },
@@ -33,8 +36,16 @@ const plans = [
       'پشتیبانی اختصاصی',
     ],
     cta: 'درخواست مشاوره',
+    href: '#cta',
   },
 ]
+
+const ctaClasses = (highlighted) =>
+  `group mt-8 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-all duration-300 ${
+    highlighted
+      ? 'btn-brand'
+      : 'border border-white/12 bg-white/[0.04] text-white hover:border-white/25 hover:bg-white/[0.08]'
+  }`
 
 export default function Pricing() {
   return (
@@ -97,17 +108,17 @@ export default function Pricing() {
                 ))}
               </ul>
 
-              <a
-                href="#cta"
-                className={`group mt-8 inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition-all duration-300 ${
-                  plan.highlighted
-                    ? 'btn-brand'
-                    : 'border border-white/12 bg-white/[0.04] text-white hover:border-white/25 hover:bg-white/[0.08]'
-                }`}
-              >
-                {plan.cta}
-                <ArrowLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
-              </a>
+              {plan.href.startsWith('/') ? (
+                <Link to={plan.href} className={ctaClasses(plan.highlighted)}>
+                  {plan.cta}
+                  <ArrowLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                </Link>
+              ) : (
+                <a href={plan.href} className={ctaClasses(plan.highlighted)}>
+                  {plan.cta}
+                  <ArrowLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
+                </a>
+              )}
             </article>
           ))}
         </div>

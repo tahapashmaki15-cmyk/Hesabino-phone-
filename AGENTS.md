@@ -32,10 +32,20 @@ named volume, and runs `npm install && npm run dev` (Vite dev server on 3000).
   image — regenerate the crop from `netyar-logo.png` instead of drawing a new mark.
 - Design tokens (navy/orange palette, glass/edge-glow/grid utilities, keyframes) live in
   `src/index.css` under `@theme` / `@layer`. Change the palette there, not per component.
+- Typography: **Estedad** (Google Fonts, variable 400–900, `font-display: swap`) is the only
+  typeface — token `--font-sans` in `src/index.css`. Type scale: h1/h2 800, h3/h4 700,
+  sub-headings/labels 600/500, body 400. Don't introduce another font family.
+- Routing: `react-router-dom` (`BrowserRouter` in `src/main.jsx`, routes in `src/App.jsx`).
+  `/` is the landing page (`src/pages/Landing.jsx`); auth screens live in `src/pages/`:
+  `/login`, `/register`, `/forgot-password`, sharing `src/components/auth/AuthLayout.jsx`
+  and `FormField.jsx`. Vite's SPA fallback serves these deep links in dev.
+- Auth is **UI + client-side validation only** (by design, for now): no Supabase, API or
+  session exists, so a valid submit only shows an explanatory notice. Validators live in
+  `src/lib/validation.js` and normalize Persian/Arabic digits. Wire real auth later
+  without changing the form components' props.
 - Pricing shows an intentional dashed **«مبلغ پلن»** placeholder — real prices were not
   provided. Same for `info@netyar.ir`, which is a placeholder to be replaced.
-- Login/signup and legal links currently point at on-page anchors (`#pricing`, `#`) —
-  no auth or backend exists yet by design.
+- Legal pages (`قوانین`/`حریم خصوصی`) and footer social links still point at `#`.
 
 ## Verification
 - `curl -s http://localhost:3000/ | grep -c 'id="root"'` → 1

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { ArrowLeft, Menu, X } from 'lucide-react'
 import Logo from './Logo.jsx'
 
@@ -47,19 +48,19 @@ export default function Navbar() {
           </ul>
 
           <div className="hidden items-center gap-2.5 md:flex">
-            <a
-              href="#pricing"
+            <Link
+              to="/login"
               className="rounded-full px-4 py-2.5 text-sm font-semibold text-white/85 transition-colors hover:text-white"
             >
               ورود
-            </a>
-            <a
-              href="#pricing"
+            </Link>
+            <Link
+              to="/register"
               className="btn-brand group inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-all duration-300"
             >
               ثبت‌نام رایگان
               <ArrowLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-0.5" />
-            </a>
+            </Link>
           </div>
 
           <button
@@ -94,20 +95,20 @@ export default function Navbar() {
           ))}
         </ul>
         <div className="flex items-center gap-2 border-t border-white/[0.07] px-5 py-4">
-          <a
-            href="#pricing"
+          <Link
+            to="/login"
             onClick={() => setOpen(false)}
             className="flex-1 rounded-full border border-white/12 px-4 py-2.5 text-center text-sm font-semibold text-white"
           >
             ورود
-          </a>
-          <a
-            href="#pricing"
+          </Link>
+          <Link
+            to="/register"
             onClick={() => setOpen(false)}
             className="btn-brand flex-1 rounded-full px-4 py-2.5 text-center text-sm font-bold"
           >
             ثبت‌نام رایگان
-          </a>
+          </Link>
         </div>
       </div>
     </header>

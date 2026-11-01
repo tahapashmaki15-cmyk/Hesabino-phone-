@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { ArrowLeft, Check } from 'lucide-react'
 
 export default function FinalCta() {
@@ -20,13 +21,13 @@ export default function FinalCta() {
             </p>
 
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <a
-                href="#pricing"
+              <Link
+                to="/register"
                 className="btn-brand group inline-flex w-full items-center justify-center gap-2 rounded-full px-8 py-3.5 text-sm font-bold transition-all duration-300 sm:w-auto"
               >
                 شروع رایگان
                 <ArrowLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
-              </a>
+              </Link>
               <span className="flex items-center gap-2 text-[12px] text-muted/80">
                 <Check className="size-3.5 text-brand" />
                 بدون نیاز به کارت بانکی برای شروع
