@@ -1,5 +1,4 @@
 import { Instagram, Mail, Send, ShieldCheck } from 'lucide-react'
-import Logo from './Logo.jsx'
 
 const columns = [
   {
@@ -28,7 +27,13 @@ export default function Footer() {
       <div className="mx-auto w-full max-w-7xl px-5 py-14 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
           <div>
-            <Logo />
+            <a href="#home" className="inline-block" aria-label="NETYAR — نت‌یار">
+              <img
+                src="/netyar-logo.png"
+                alt="NETYAR — نت‌یار"
+                className="h-auto w-56 rounded-2xl ring-1 ring-white/[0.07]"
+              />
+            </a>
             <p className="mt-5 max-w-xs text-[13px] leading-7 text-muted">
               نت‌یار، دستیار هوشمند کافی‌نت‌داران؛ حسابداری، اخبار و سامانه‌ها، نرخ‌نامه و هوش مصنوعی در یک
               پنل حرفه‌ای و فارسی.

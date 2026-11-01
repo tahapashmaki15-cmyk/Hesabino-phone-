@@ -26,6 +26,10 @@ named volume, and runs `npm install && npm run dev` (Vite dev server on 3000).
   polling (bind mounts don't emit inotify reliably). Unset, Vite uses normal watching.
 - Host allowlisting uses the platform-provided `__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS`
   (passed through compose); no host names are hardcoded.
+- Brand assets in `public/`: `netyar-logo.png` is the supplied 1672×941 brand banner
+  (used as-is in the footer); `netyar-mark.png` is a square 941×941 emblem crop of it,
+  used for the navbar/footer logo tile and the favicon. Both come from the same source
+  image — regenerate the crop from `netyar-logo.png` instead of drawing a new mark.
 - Design tokens (navy/orange palette, glass/edge-glow/grid utilities, keyframes) live in
   `src/index.css` under `@theme` / `@layer`. Change the palette there, not per component.
 - Pricing shows an intentional dashed **«مبلغ پلن»** placeholder — real prices were not
