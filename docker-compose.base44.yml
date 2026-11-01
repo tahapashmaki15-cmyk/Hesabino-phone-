@@ -1,0 +1,33 @@
+services:
+  web:
+    image: node:22-slim
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+    environment:
+      # Sandbox preview flag: passed through, gates polling/HMR helpers only.
+      - BASE44_PREVIEW_MODE
+      # Platform-provided host allowlist for the Vite dev server behind the proxy.
+      - __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS
+    command: ["sh", "-ec", "npm install --no-audit --no-fund && exec npm run dev"]
+    restart: on-failure
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:3000/'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 90s
+    labels:
+      base44.project: "NETYAR — نت‌یار"
+      base44.kind: "web"
+      base44.port: "3000"
+
+volumes:
+  node_modules:
