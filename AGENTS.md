@@ -39,10 +39,26 @@ named volume, and runs `npm install && npm run dev` (Vite dev server on 3000).
   `/` is the landing page (`src/pages/Landing.jsx`); auth screens live in `src/pages/`:
   `/login`, `/register`, `/forgot-password`, sharing `src/components/auth/AuthLayout.jsx`
   and `FormField.jsx`. Vite's SPA fallback serves these deep links in dev.
-- Auth is **UI + client-side validation only** (by design, for now): no Supabase, API or
-  session exists, so a valid submit only shows an explanatory notice. Validators live in
-  `src/lib/validation.js` and normalize Persian/Arabic digits. Wire real auth later
-  without changing the form components' props.
+- Auth is wired to **Supabase** (`@supabase/supabase-js`, project
+  `bxaekqoplpregsrxiyuz`): login → `signInWithPassword`, register → `signUp` with
+  `full_name`/`cafe_name`/`mobile` in user metadata, forgot password →
+  `resetPasswordForEmail` (redirect back to `/login`). Client lives in `src/lib/supabase.js`;
+  Persian error copy in `src/lib/authErrors.js` (maps `error.code` first, then message).
+  Validators live in `src/lib/validation.js` and normalize Persian/Arabic digits. Keep the
+  form components' props unchanged.
+- Supabase config: `VITE_SUPABASE_URL` is a non-secret default in `.env.base44-defaults`
+  (committed); `VITE_SUPABASE_ANON_KEY` is a platform secret delivered through
+  `/run/base44/app.env`. Compose lists the defaults file FIRST and the secret file LAST, so
+  the real key always wins. Vite only reads these at dev-server start, so a key change needs
+  the container recreated (the platform does this) — not just a browser reload.
+  **Use the publishable/anon key only**; Supabase answers a `sb_secret_…` key with
+  401 "Forbidden use of secret API key in browser" and the forms show a config error.
+- Login accepts email only at the moment: `signInWithPassword` needs email, and phone OTP
+  requires an SMS provider. A mobile identifier shows a message asking for the email
+  instead. Register still stores the mobile in user metadata.
+- Supabase Auth → URL configuration must allow the site origin (including the port-3000
+  preview host) as a redirect URL, otherwise confirmation/reset links fall back to the
+  project's Site URL.
 - Pricing shows an intentional dashed **«مبلغ پلن»** placeholder — real prices were not
   provided. Same for `info@netyar.ir`, which is a placeholder to be replaced.
 - Legal pages (`قوانین`/`حریم خصوصی`) and footer social links still point at `#`.
