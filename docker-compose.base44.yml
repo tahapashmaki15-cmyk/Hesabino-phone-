@@ -1,0 +1,58 @@
+services:
+  web:
+    image: node:22-slim
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules
+    # Non-secret defaults first; platform-delivered secrets last so they win.
+    env_file:
+      - ./.env.base44-defaults
+      - /run/base44/app.env
+    environment:
+      # Sandbox preview flag: passed through, gates polling/HMR helpers only.
+      - BASE44_PREVIEW_MODE
+      # Platform-provided host allowlist for the Vite dev server behind the proxy.
+      - __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS
+    command: ["sh", "-ec", "npm install --no-audit --no-fund && exec npm run dev"]
+    restart: on-failure
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'node -e "fetch(''http://127.0.0.1:3000/'').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"',
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 90s
+    labels:
+      base44.project: "NETYAR — نت‌یار"
+      base44.kind: "web"
+      base44.port: "3000"
+
+  # One-shot migration runner for Supabase (profile: tools, so `up` ignores it).
+  migrate:
+    image: postgres:16-alpine
+    profiles: ["tools"]
+    working_dir: /migrations
+    volumes:
+      - ./supabase/migrations:/migrations:ro
+    env_file:
+      - ./.env.base44-defaults
+      - /run/base44/app.env
+    command:
+      - sh
+      - -ec
+      - |
+        : "$${SUPABASE_DB_URL:?SUPABASE_DB_URL is not set}"
+        for file in /migrations/*.sql; do
+          echo "applying $$file"
+          psql "$$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f "$$file"
+        done
+    restart: "no"
+
+volumes:
+  node_modules:

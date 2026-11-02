@@ -1,0 +1,17 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "VITE_SUPABASE_ANON_KEY",
+      "description": "Supabase publishable/anon key for project bxaekqoplpregsrxiyuz (dashboard → Project Settings → API Keys). The secret/service_role key is rejected in the browser.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SUPABASE_DB_URL",
+      "description": "Postgres connection string used only by the one-shot migration runner (docker compose --profile tools run --rm migrate) and for RLS checks. Never exposed to the browser.",
+      "requiredAtBoot": false
+    }
+  ]
+}
