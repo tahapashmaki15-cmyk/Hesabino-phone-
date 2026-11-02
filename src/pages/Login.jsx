@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft, AtSign, Lock } from 'lucide-react'
 import AuthLayout from '../components/auth/AuthLayout.jsx'
 import { Checkbox, Field, FormNotice, PasswordField } from '../components/auth/FormField.jsx'
@@ -8,6 +8,8 @@ import { authErrorMessage } from '../lib/authErrors.js'
 import { supabase } from '../lib/supabase.js'
 
 export default function Login() {
+  const navigate = useNavigate()
+  const location = useLocation()
   const [form, setForm] = useState({ identifier: '', password: '', remember: false })
   const [errors, setErrors] = useState({})
   const [notice, setNotice] = useState(null)
@@ -55,11 +57,13 @@ export default function Login() {
       return
     }
 
-    const name = data.user?.user_metadata?.full_name
-    setNotice({
-      tone: 'success',
-      text: name ? `${name} عزیز، خوش آمدید؛ ورود شما انجام شد.` : 'خوش آمدید؛ ورود شما انجام شد.',
-    })
+    if (!data.session) {
+      setNotice({ tone: 'error', text: 'ورود انجام نشد؛ دوباره تلاش کنید.' })
+      return
+    }
+
+    const redirectTo = location.state?.from || '/dashboard'
+    navigate(redirectTo, { replace: true })
   }
 
   return (

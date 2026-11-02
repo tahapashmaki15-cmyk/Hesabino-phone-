@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Lock, Mail, Smartphone, Store, User } from 'lucide-react'
 import AuthLayout from '../components/auth/AuthLayout.jsx'
 import { Checkbox, Field, FormNotice, PasswordField } from '../components/auth/FormField.jsx'
@@ -11,6 +11,7 @@ import {
   normalizeDigits,
 } from '../lib/validation.js'
 import { authErrorMessage } from '../lib/authErrors.js'
+import { isPhoneRegistered } from '../lib/cafes.js'
 import { supabase } from '../lib/supabase.js'
 
 const emptyForm = {
@@ -24,6 +25,7 @@ const emptyForm = {
 }
 
 export default function Register() {
+  const navigate = useNavigate()
   const [form, setForm] = useState(emptyForm)
   const [errors, setErrors] = useState({})
   const [notice, setNotice] = useState(null)
@@ -66,6 +68,12 @@ export default function Register() {
       return
     }
 
+    // Server-side duplicate check (profiles.phone is unique).
+    if (await isPhoneRegistered(normalizeDigits(form.mobile.trim()))) {
+      setErrors({ mobile: 'این شماره موبایل قبلاً ثبت شده است.' })
+      return
+    }
+
     setPending(true)
     const { data, error } = await supabase.auth.signUp({
       email: form.email.trim(),
@@ -87,11 +95,15 @@ export default function Register() {
     }
 
     setForm((current) => ({ ...current, password: '', confirmPassword: '' }))
+
+    if (data.session) {
+      navigate('/dashboard', { replace: true })
+      return
+    }
+
     setNotice({
       tone: 'success',
-      text: data.session
-        ? 'حساب شما ساخته شد و وارد شدید.'
-        : 'حساب شما ساخته شد؛ برای فعال‌سازی، لینک تأیید را در ایمیل خود باز کنید.',
+      text: 'حساب شما ساخته شد؛ برای فعال‌سازی، لینک تأیید را در ایمیل خود باز کنید.',
     })
   }
 

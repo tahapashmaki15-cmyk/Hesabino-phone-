@@ -24,6 +24,8 @@ const byMessage = {
   'Email rate limit exceeded': 'تعداد درخواست‌ها زیاد بوده است؛ چند دقیقه بعد دوباره تلاش کنید.',
   'Password should be at least 6 characters': 'رمز عبور باید حداقل ۶ کاراکتر باشد.',
   'Unable to validate email address: invalid format': 'ایمیل واردشده معتبر نیست.',
+  'Database error saving new user':
+    'ثبت اطلاعات حساب ممکن نشد؛ ممکن است شماره موبایل یا ایمیل شما قبلاً ثبت شده باشد.',
 }
 
 export function authErrorMessage(error) {

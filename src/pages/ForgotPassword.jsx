@@ -40,7 +40,7 @@ export default function ForgotPassword() {
 
     setPending(true)
     const { error: resetError } = await supabase.auth.resetPasswordForEmail(identifier.trim(), {
-      redirectTo: `${window.location.origin}/login`,
+      redirectTo: `${window.location.origin}/reset-password`,
     })
     setPending(false)
 

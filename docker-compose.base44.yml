@@ -33,5 +33,26 @@ services:
       base44.kind: "web"
       base44.port: "3000"
 
+  # One-shot migration runner for Supabase (profile: tools, so `up` ignores it).
+  migrate:
+    image: postgres:16-alpine
+    profiles: ["tools"]
+    working_dir: /migrations
+    volumes:
+      - ./supabase/migrations:/migrations:ro
+    env_file:
+      - ./.env.base44-defaults
+      - /run/base44/app.env
+    command:
+      - sh
+      - -ec
+      - |
+        : "$${SUPABASE_DB_URL:?SUPABASE_DB_URL is not set}"
+        for file in /migrations/*.sql; do
+          echo "applying $$file"
+          psql "$$SUPABASE_DB_URL" -v ON_ERROR_STOP=1 -f "$$file"
+        done
+    restart: "no"
+
 volumes:
   node_modules:
