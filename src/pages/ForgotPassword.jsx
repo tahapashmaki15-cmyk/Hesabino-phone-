@@ -2,16 +2,21 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, AtSign, CheckCircle2, RotateCcw } from 'lucide-react'
 import AuthLayout from '../components/auth/AuthLayout.jsx'
-import { Field } from '../components/auth/FormField.jsx'
-import { isEmailOrMobile, messages } from '../lib/validation.js'
+import { Field, FormNotice } from '../components/auth/FormField.jsx'
+import { isEmailOrMobile, isValidEmail, messages } from '../lib/validation.js'
+import { authErrorMessage } from '../lib/authErrors.js'
+import { supabase } from '../lib/supabase.js'
 
 export default function ForgotPassword() {
   const [identifier, setIdentifier] = useState('')
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState(null)
   const [sent, setSent] = useState(false)
+  const [pending, setPending] = useState(false)
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    setNotice(null)
 
     if (!identifier.trim()) {
       setError(messages.required)
@@ -21,8 +26,29 @@ export default function ForgotPassword() {
       setError(messages.identifier)
       return
     }
+    if (!isValidEmail(identifier)) {
+      setError('بازیابی رمز فعلاً از طریق ایمیل انجام می‌شود؛ ایمیل حساب خود را وارد کنید.')
+      return
+    }
 
     setError('')
+
+    if (!supabase) {
+      setNotice({ tone: 'error', text: 'اتصال به سرویس بازیابی هنوز کامل نشده است.' })
+      return
+    }
+
+    setPending(true)
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(identifier.trim(), {
+      redirectTo: `${window.location.origin}/login`,
+    })
+    setPending(false)
+
+    if (resetError) {
+      setNotice({ tone: 'error', text: authErrorMessage(resetError) })
+      return
+    }
+
     setSent(true)
   }
 
@@ -65,6 +91,7 @@ export default function ForgotPassword() {
             onChange={(event) => {
               setIdentifier(event.target.value)
               setError('')
+              setNotice(null)
             }}
             error={error}
             placeholder="you@example.com یا 09123456789"
@@ -74,11 +101,14 @@ export default function ForgotPassword() {
             autoComplete="username"
           />
 
+          {notice && <FormNotice tone={notice.tone}>{notice.text}</FormNotice>}
+
           <button
             type="submit"
-            className="btn-brand group mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all duration-300"
+            disabled={pending}
+            className="btn-brand group mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            ارسال درخواست بازیابی
+            {pending ? 'در حال ارسال…' : 'ارسال درخواست بازیابی'}
             <ArrowLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
           </button>
         </form>

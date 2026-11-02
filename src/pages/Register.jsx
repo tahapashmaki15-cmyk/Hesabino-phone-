@@ -3,7 +3,15 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, Lock, Mail, Smartphone, Store, User } from 'lucide-react'
 import AuthLayout from '../components/auth/AuthLayout.jsx'
 import { Checkbox, Field, FormNotice, PasswordField } from '../components/auth/FormField.jsx'
-import { isValidEmail, isValidMobile, isValidPassword, messages } from '../lib/validation.js'
+import {
+  isValidEmail,
+  isValidMobile,
+  isValidPassword,
+  messages,
+  normalizeDigits,
+} from '../lib/validation.js'
+import { authErrorMessage } from '../lib/authErrors.js'
+import { supabase } from '../lib/supabase.js'
 
 const emptyForm = {
   fullName: '',
@@ -18,16 +26,17 @@ const emptyForm = {
 export default function Register() {
   const [form, setForm] = useState(emptyForm)
   const [errors, setErrors] = useState({})
-  const [submitted, setSubmitted] = useState(false)
+  const [notice, setNotice] = useState(null)
+  const [pending, setPending] = useState(false)
 
   const update = (key) => (event) => {
     const { type, checked, value } = event.target
     setForm((current) => ({ ...current, [key]: type === 'checkbox' ? checked : value }))
     setErrors((current) => ({ ...current, [key]: undefined }))
-    setSubmitted(false)
+    setNotice(null)
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     const next = {}
 
@@ -49,7 +58,41 @@ export default function Register() {
     if (!form.terms) next.terms = messages.terms
 
     setErrors(next)
-    setSubmitted(Object.keys(next).length === 0)
+    setNotice(null)
+    if (Object.keys(next).length) return
+
+    if (!supabase) {
+      setNotice({ tone: 'error', text: 'اتصال به سرویس ثبت‌نام هنوز کامل نشده است.' })
+      return
+    }
+
+    setPending(true)
+    const { data, error } = await supabase.auth.signUp({
+      email: form.email.trim(),
+      password: form.password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/login`,
+        data: {
+          full_name: form.fullName.trim(),
+          cafe_name: form.cafeName.trim(),
+          mobile: normalizeDigits(form.mobile.trim()),
+        },
+      },
+    })
+    setPending(false)
+
+    if (error) {
+      setNotice({ tone: 'error', text: authErrorMessage(error) })
+      return
+    }
+
+    setForm((current) => ({ ...current, password: '', confirmPassword: '' }))
+    setNotice({
+      tone: 'success',
+      text: data.session
+        ? 'حساب شما ساخته شد و وارد شدید.'
+        : 'حساب شما ساخته شد؛ برای فعال‌سازی، لینک تأیید را در ایمیل خود باز کنید.',
+    })
   }
 
   return (
@@ -142,17 +185,14 @@ export default function Register() {
           نت‌یار را می‌پذیرم.
         </Checkbox>
 
-        {submitted && (
-          <FormNotice tone="success">
-            اطلاعات شما معتبر است. ساخت حساب و اتصال به پایگاه داده در مرحله بعدی پروژه فعال می‌شود.
-          </FormNotice>
-        )}
+        {notice && <FormNotice tone={notice.tone}>{notice.text}</FormNotice>}
 
         <button
           type="submit"
-          className="btn-brand group mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all duration-300"
+          disabled={pending}
+          className="btn-brand group mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          ایجاد حساب کاربری
+          {pending ? 'در حال ساخت حساب…' : 'ایجاد حساب کاربری'}
           <ArrowLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
         </button>
       </form>

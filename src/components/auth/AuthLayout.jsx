@@ -53,7 +53,7 @@ export default function AuthLayout({ title, subtitle, children }) {
             </div>
 
             <p className="mt-5 text-center text-[11px] leading-6 text-muted/60 lg:text-right">
-              این صفحه در مرحله طراحی رابط کاربری است؛ اتصال به سامانه احراز هویت در مرحله بعد فعال می‌شود.
+              احراز هویت از طریق سرویس ابری Supabase انجام می‌شود و اطلاعات حساب شما رمزنگاری‌شده ذخیره می‌گردد.
             </p>
           </section>
 

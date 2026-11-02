@@ -3,21 +3,24 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, AtSign, Lock } from 'lucide-react'
 import AuthLayout from '../components/auth/AuthLayout.jsx'
 import { Checkbox, Field, FormNotice, PasswordField } from '../components/auth/FormField.jsx'
-import { isEmailOrMobile, messages } from '../lib/validation.js'
+import { isEmailOrMobile, isValidEmail, messages } from '../lib/validation.js'
+import { authErrorMessage } from '../lib/authErrors.js'
+import { supabase } from '../lib/supabase.js'
 
 export default function Login() {
   const [form, setForm] = useState({ identifier: '', password: '', remember: false })
   const [errors, setErrors] = useState({})
-  const [submitted, setSubmitted] = useState(false)
+  const [notice, setNotice] = useState(null)
+  const [pending, setPending] = useState(false)
 
   const update = (key) => (event) => {
     const { type, checked, value } = event.target
     setForm((current) => ({ ...current, [key]: type === 'checkbox' ? checked : value }))
     setErrors((current) => ({ ...current, [key]: undefined }))
-    setSubmitted(false)
+    setNotice(null)
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
     const next = {}
 
@@ -27,7 +30,36 @@ export default function Login() {
     if (!form.password) next.password = messages.required
 
     setErrors(next)
-    setSubmitted(Object.keys(next).length === 0)
+    setNotice(null)
+    if (Object.keys(next).length) return
+
+    if (!isValidEmail(form.identifier)) {
+      setErrors({ identifier: 'ورود با شماره موبایل پس از فعال‌سازی پیامک ممکن می‌شود؛ فعلاً با ایمیل وارد شوید.' })
+      return
+    }
+
+    if (!supabase) {
+      setNotice({ tone: 'error', text: 'اتصال به سرویس ورود هنوز کامل نشده است.' })
+      return
+    }
+
+    setPending(true)
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: form.identifier.trim(),
+      password: form.password,
+    })
+    setPending(false)
+
+    if (error) {
+      setNotice({ tone: 'error', text: authErrorMessage(error) })
+      return
+    }
+
+    const name = data.user?.user_metadata?.full_name
+    setNotice({
+      tone: 'success',
+      text: name ? `${name} عزیز، خوش آمدید؛ ورود شما انجام شد.` : 'خوش آمدید؛ ورود شما انجام شد.',
+    })
   }
 
   return (
@@ -72,17 +104,14 @@ export default function Login() {
           </Link>
         </div>
 
-        {submitted && (
-          <FormNotice tone="success">
-            اطلاعات معتبر است. اتصال به سامانه ورود در مرحله بعدی پروژه فعال می‌شود.
-          </FormNotice>
-        )}
+        {notice && <FormNotice tone={notice.tone}>{notice.text}</FormNotice>}
 
         <button
           type="submit"
-          className="btn-brand group mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all duration-300"
+          disabled={pending}
+          className="btn-brand group mt-2 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          ورود به حساب
+          {pending ? 'در حال ورود…' : 'ورود به حساب'}
           <ArrowLeft className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
         </button>
       </form>
